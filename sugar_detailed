@@ -1,0 +1,38 @@
+#!/bin/sh
+
+##functions adn source files
+## simple_t.c --> simple_t
+##RegionMetaDataByte.c --> RegionCOM_a
+
+vformat if=$1 -gif of=sugar.vx  #GIF to VX
+
+#vmean if=sugar.vx xy=2 | simple_t of=$2 t=85 #fixed threshold with mean filter (optional)
+
+#simple_t if=sugar.vx  of=sugar.th t=85 #fixed thereshold without filter
+vthresh if=sugar.vx  of=sugar.th
+
+RegionCOM_a if=sugar.th of=sugar.thArea of2=sugar.com  #generate area thresholding and COM
+
+
+vsobel if=sugar.com -d of=sugar.sobel #sobel edge with direction angle
+
+vhoughl if=sugar.sobel de=20 of=sugar.hough #Hough transform Note: Threshold not change the output, de for sin wave mapping. 
+
+vhoughl -i if=sugar.hough th=7 of=sugar.ihough #Inverse Hough transform with threshold
+
+
+#####
+simple_t if=sugar.ihough t=1 of=sugar.lbyn  ##save the line binarized ihough image in tempvx 
+simple_t if=sugar.ihough t=9 of=sugar.inte #identify the intersection
+
+vmorph if=sugar.inte s=7,7 -d t=s of=sugar.ithick #  make intersections thicker.
+
+vop if=sugar.lbyn ig=sugar.ithick -sub of=sugar.noint ## intersections eliminated
+
+simple_t if=sugar.noint t=1 of=$2 #bynary image without intersections
+####
+
+
+
+
+
