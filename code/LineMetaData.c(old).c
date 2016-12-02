@@ -23,15 +23,16 @@ void set_label(int, int, int);
 Vfstruct (im);                      /* i/o image structure          */
 Vfstruct (tm);                      /* temp image structure         */
 Vfstruct (im2);                      /* temp image structure         */
+int region_range;
 
 struct Line_Segments{
 	int pixels; //index for coordinates
-	int xcoord[1000];//x coordinates of connected line segment
-	int ycoord[1000];//y coordinates of connected line segment
+	int xcoord[255];//x coordinates of connected line segment
+	int ycoord[255];//y coordinates of connected line segment
 	float slope;
 };
 
-struct Line_Segments MetaData[1000];//create array to store all line segment data
+struct Line_Segments MetaData[255];//create array to store all line segment data
 
 
 
@@ -62,7 +63,11 @@ main(argc, argv)
 				im2.u[y][x]=0;//clear second output image
 			}
 		}
-
+		//initialize data structure
+		//for (i =0; i<255;i++){
+		//	MetaData[i].pixels=0;
+			
+		//}
 		int neg=0;//count negative slopes
 		int pos=0;//count positive slopes
 		for (y = im.ylo ; y <= im.yhi ; y++) {
@@ -146,9 +151,7 @@ main(argc, argv)
 			printf("filtered_mean: %.2f\n", filtered_mean);
 			
 		}
-		printf("L: %d\n", L);
-		int elements = sizeof(MetaData)/sizeof(MetaData[0]);
-		printf("elements: %d\n", elements);
+
 		//plot lines with slopes that are within .02 of slope		
 		for(i=0; i < (L-1); i++) {
 			if(abs(MetaData[i].slope*100 - 100*filtered_mean)<=2){//<=.03 from mean slope
@@ -156,10 +159,9 @@ main(argc, argv)
 				for(j=0; j < MetaData[i].pixels; j++){
 					int im2_x = MetaData[i].xcoord[j];
 					int im2_y = MetaData[i].ycoord[j];
-					
 					im2.u[im2_y][im2_x]=255;
 				} 
-				//printf("L: %d\tslope: %.2f\n", (i+1), MetaData[i].slope);
+				printf("L: %d\tslope: %.2f\n", (i+1), MetaData[i].slope);
 			}
 		}
 	
@@ -209,6 +211,13 @@ int getMode(int a[],int size) {
 int getMax(int coords[], int size){//gets index of highest number in array
 	//printf("Enter getMax\n");
 	int i, max, maxIndex;
+//	int filtered_coords1[size];
+/*
+	for(i=0; i<size; i++){//load coords
+		filtered_coords1[i] = coords[i];
+		//printf("i: %d\toriginal coords: %d\tfiltered_coords:%d\n", i, coords[i], filtered_coords1[i]);
+	}
+*/
 	max=coords[0];
 	for(i=0; i<size; i++){
 		if(max<=coords[i]){
@@ -217,14 +226,20 @@ int getMax(int coords[], int size){//gets index of highest number in array
 
 		}
 	}
-	
-	//printf("Exit getMax\n");
+	//printf("maxIndex: %d\n", maxIndex);
 	return maxIndex;
 }
 
 int getMin(int coords[], int size){
 	//printf("Enter getMin\n");
 	int i, min, minIndex;
+	//int filtered_coords2[size];
+/*
+	for(i=0; i<size; i++){
+		filtered_coords2[i] = coords[i];
+		//printf("i: %d\toriginal coords: %d\tfiltered_coords:%d\n", i, coords[i], filtered_coords2[i]);
+	}
+*/
 	min=coords[0];
 	for(i=0; i<size; i++){
 		if(min>=coords[i]){
@@ -232,18 +247,19 @@ int getMin(int coords[], int size){
 			minIndex = i;
 		}
 	}
-	//printf("Exit getMin\n");
+	//printf("minIndex: %d\n", minIndex);
 	return minIndex;
-	
 }
 
 
 void set_label(int x, int y, int L)
 {
 	//set output pixel to label value
+	int index = MetaData[L-1].pixels;
+	printf("L: %d\tPixels: %d\n", L, MetaData[L-1].pixels);
 	im.u[y][x] = L;
-	MetaData[L-1].xcoord[MetaData[L-1].pixels]=x;
-	MetaData[L-1].ycoord[MetaData[L-1].pixels]=y;
+	MetaData[L-1].xcoord[index]=x;
+	MetaData[L-1].ycoord[index]=y;
 	MetaData[L-1].pixels++;//increment pixel index(# of coordinates)
 	
 	
