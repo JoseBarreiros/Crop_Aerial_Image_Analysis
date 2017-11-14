@@ -8,6 +8,8 @@ Jose Barreiros (jab879@cornell.edu)
 
 This code describe an image processing algorithm to identify regions of replantation in a crop of sugar came using aerial infrared imagery.
 
+Implemented in C using VisionX library (http://www.via.cornell.edu/visionx/cguide/fpage.html)
+
 Problem:
 Identify and highlight gaps between sugarcane crops in each row to designate regions for replantation due to the reduction of productivity in each growing cycle.
 
