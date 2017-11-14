@@ -6,7 +6,7 @@ Authors:
 Jonathan Wu (jzw8@cornell.edu)
 Jose Barreiros (jab879@cornell.edu)
 
-This code describe an image processing algorithm to identify regions of replantation in a crop of sugar came using aerial infrared imagery.
+This code describe an image processing algorithm to identify regions of replantation in a crop of sugarcane using aerial infrared imagery.
 
 Implemented in C using VisionX library (http://www.via.cornell.edu/visionx/cguide/fpage.html)
 
