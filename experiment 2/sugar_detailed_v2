@@ -1,0 +1,51 @@
+#!/bin/sh
+
+##functions adn source files
+## simple_t.c --> simple_t
+##RegionMetaDataByte.c --> AreaTh
+##ComPlot.c --> ComPlot
+##LineMetaData.c --> LineMeta
+
+
+#Clean files
+rm sugar.vx sugar.ConEnh sugar.filter sugar.th sugar.thArea sugar.com sugar.sobelAngle sugar.sobel sugar.hough sugar.ihough sugar.lbyn sugar.inte sugar.ithick sugar.noint sugar.nointT sugar.genRow sugar.freqLines sugar.OneSeg sugar.rows temp temp2 1 2
+##
+
+#Compile code 
+vcc LinearContrastEnhancement.c -o ContEnhancement
+vcc RegionMetaDataBytes.c -o AreaTh
+vcc COMPlot.c -o COMPlot
+vcc FilterLines.c -o FilterLines
+vcc LineMetaData_old.c -o LineMeta
+vcc simple_t.c -o simple_t
+vcc DrawRows.c -o DrawRows
+vcc ThickRows.c -o ThickRows
+vcc FilterLinesHough.c -o FilterLinesHough
+vcc IdentCropRows.c -o IdentCropRows
+
+##
+
+
+#vformat if=$1 -gif of=sugar.vx  #GIF to VX
+
+ContEnhancement if=$1 of=sugar.ConEnh
+#vmean if=sugar.vx xy=2 of=sugar.filter #LPF
+#hpf if=sugar.vx of=sugar.filter #HPF
+
+#vthresh if=sugar.ConEnh  of=sugar.th  #Otsu thereshold without filter
+#vthresh if=sugar.filter of=sugar.th #Otsu threshold with filter
+simple_t if=sugar.ConEnh of=sugar.th t=85 #Simple thresholding
+
+AreaTh if=sugar.th of=sugar.thArea  #generate area thresholding 
+AreaTh if=sugar.th of=$2
+
+#COMPlot if=sugar.thArea of=sugar.com #generate COM
+
+
+
+vrdiff if=$3 bf=sugar.thArea -cp of=compare.crop ig=sugar.vx os=$4
+
+vxto gif if=compare.crop of=$5
+#vrdiff if=$5 bf=sugar.Rthick -cp of=compare.row ig=sugar.vx os=compareRow.txt
+
+

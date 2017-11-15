@@ -1,0 +1,87 @@
+#!/bin/sh
+
+##functions adn source files
+## simple_t.c --> simple_t
+##RegionMetaDataByte.c --> AreaTh
+##ComPlot.c --> ComPlot
+##LineMetaData.c --> LineMeta
+
+
+#Clean files
+rm sugar.vx sugar.ConEnh sugar.filter sugar.th sugar.thArea sugar.com sugar.sobelAngle sugar.sobel sugar.hough sugar.ihough sugar.lbyn sugar.inte sugar.ithick sugar.noint sugar.nointT sugar.genRow sugar.freqLines sugar.OneSeg sugar.rows temp temp2 1 2
+##
+
+#Compile code 
+vcc LinearContrastEnhancement.c -o ContEnhancement
+vcc RegionMetaDataBytes.c -o AreaTh
+vcc COMPlot.c -o COMPlot
+vcc FilterLines.c -o FilterLines
+vcc LineMetaData.c -o LineMeta
+vcc simple_t.c -o simple_t
+vcc DrawRows.c -o DrawRows
+
+##
+
+
+vformat if=$1 -gif of=sugar.vx  #GIF to VX
+
+ContEnhancement if=sugar.vx of=sugar.ConEnh
+#vmean if=sugar.vx xy=2 of=sugar.filter #LPF
+#hpf if=sugar.vx of=sugar.filter #HPF
+
+#vthresh if=sugar.ConEnh  of=sugar.th  #Otsu thereshold without filter
+#vthresh if=sugar.filter of=sugar.th #Otsu threshold with filter
+simple_t if=sugar.ConEnh of=sugar.th t=85 #Simple thresholding
+
+AreaTh if=sugar.th of=sugar.thArea  #generate area thresholding 
+
+COMPlot if=sugar.thArea of=sugar.com #generate COM
+
+vsobel if=sugar.com -d of=sugar.sobelAngle && vsobel if=sugar.com of=sugar.sobel #sobel edge with direction angle
+
+#vhoughl if=sugar.sobelAngle de=20 of=sugar.hough #Hough transform Note: Threshold not change the output, de= for sin wave mapping. 
+vhoughl if=sugar.sobelAngle de=13 | HighRangeT r=22 of=sugar.hough
+
+
+#vhoughl -i if=sugar.hough th=6 of=sugar.ihough #Inverse Hough transform with threshold
+vhoughl -i if=sugar.hough of=sugar.ihough
+
+
+#####
+simple_t if=sugar.ihough t=1 of=sugar.lbyn  ##save the line binarized ihough image in tempvx 
+simple_t if=sugar.ihough t=9 of=sugar.inte #identify the intersection
+
+vmorph if=sugar.inte s=7,7 -d t=s of=sugar.ithick #  make intersections thicker.
+
+vop if=sugar.lbyn ig=sugar.ithick -sub of=sugar.noint ## intersections eliminated
+
+simple_t if=sugar.noint t=1 of=sugar.nointT #bynary image without intersections
+####
+
+LineMeta if=sugar.nointT of=temp of2=sugar.freqLines #Find the most frequently lines by slope and plot them
+
+#FilterLines if=sugar.freqLines of=sugar.OneSeg
+##Filter segment of lines, keep it just one at the end.
+FilterLines if=sugar.freqLines of=temp
+FilterLines if=temp of=temp2
+FilterLines if=temp2 of=temp
+FilterLines if=temp of=temp2
+FilterLines if=temp2 of=temp
+FilterLines if=temp of=temp2
+FilterLines if=temp2 of=temp
+FilterLines if=temp of=temp2
+FilterLines if=temp2 of=temp
+FilterLines if=temp of=temp2
+FilterLines if=temp2 of=temp
+FilterLines if=temp of=temp2
+FilterLines if=temp2 of=sugar.OneSeg
+##
+
+#DrawRows if=sugar.OneSeg of=sugar.rows
+
+
+
+
+
+
+
